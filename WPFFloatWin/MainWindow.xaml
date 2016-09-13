@@ -1,0 +1,29 @@
+﻿<Window x:Class="WPFFloatWin.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WPFFloatWin"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="120" Width="123" AllowsTransparency="True" WindowStyle="None" Opacity="0.8" Topmost="True" Background="{x:Null}" MinWidth="123" MinHeight="120" MaxWidth="123" MaxHeight="120" ResizeMode="NoResize" Loaded="Window_Loaded" ShowInTaskbar="False" Closed="Window_Closed">
+
+    <Grid x:Name="WindowGrid" Margin="1,0,-1,0" MouseLeftButtonDown="Grid_MouseLeftButtonDown">
+        <Grid.ContextMenu>
+            <ContextMenu>
+                <MenuItem Header="更改主题" Click="ChangeTheme_Click"/>
+                <MenuItem Header="退出" Click="Exit_Click"/>
+            </ContextMenu>
+        </Grid.ContextMenu>
+        <Ellipse x:Name="ArcBg" Fill="#FF71C7D4" Height="120" Margin="0,0,3,0"/>
+        <Path x:Name="ArcPath" Stroke="#FF008FCD" StrokeThickness="5" Margin="0,0,-17,-20"/>
+        <Ellipse x:Name="InnerCircle" Fill="#FF65AADD" Width="110" Height="110" Margin="5,5,5,5" HorizontalAlignment="Left" />
+        <Path x:Name="SemiCircle" Fill="#FF5A4398"/>
+        <TextBlock FontSize="18" Margin="10,61,77,37" FontFamily="Agency FB" FontWeight="Bold" Text="Down" Foreground="#FFBBE2F1"/>
+        <TextBlock x:Name="UpLoad" Margin="0,34,43,64" FontSize="18" Text="    0" FontFamily="Agency FB" UseLayoutRounding="False" FontWeight="Bold" Foreground="#FFBBE2F1" HorizontalAlignment="Right" Width="35" TextAlignment="Right"/>
+        <TextBlock x:Name="DownLoad" FontSize="18" Text="    0" Margin="0,61,43,36" FontFamily="Agency FB" FontWeight="Bold" Foreground="#FFBBE2F1" HorizontalAlignment="Right" Width="34" TextAlignment="Right"/>
+        <TextBlock FontSize="18" Margin="10,35,89,63" FontFamily="Agency FB" FontWeight="Bold" Text="Up" Foreground="#FFBBE2F1"/>
+        <TextBlock x:Name="UpSpeed" FontSize="18" Margin="80,34,10,64" FontFamily="Agency FB" FontWeight="Bold" Text="KB/s" Foreground="#FFBBE2F1" HorizontalAlignment="Left"/>
+        <TextBlock x:Name="DownSpeed" FontSize="18" Margin="80,61,10,37" FontFamily="Agency FB" FontWeight="Bold" Text="KB/s" Foreground="#FFBBE2F1" HorizontalAlignment="Left"/>
+    </Grid>
+</Window>
