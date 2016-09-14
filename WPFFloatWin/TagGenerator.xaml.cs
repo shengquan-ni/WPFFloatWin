@@ -29,7 +29,7 @@ namespace WPFFloatWin
             DoubleAnimation Anim = new DoubleAnimation();
             Anim.From = 0;
             Anim.To = 1;
-            Anim.Duration = TimeSpan.FromMilliseconds(1000);
+            Anim.Duration = TimeSpan.FromMilliseconds(500);
             this.TagC.BeginAnimation(Canvas.OpacityProperty, Anim);
             NowText.Text = TagWindow.functions.Keys.ElementAt(index);
         }

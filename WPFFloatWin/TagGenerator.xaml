@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPFFloatWin"
         mc:Ignorable="d"
-        Title="TagGenerator" Height="300" Width="300" ShowInTaskbar="False" Topmost="True" ResizeMode="NoResize" WindowStyle="None" Opacity="0.5" Background="#7F000000" Loaded="Window_Loaded" MouseLeftButtonDown="Window_MouseLeftButtonDown" AllowsTransparency="True" MouseWheel="Window_MouseWheel" KeyDown="Window_KeyDown" Closed="Window_Closed">
+        Title="TagGenerator" Height="300" Width="300" ShowInTaskbar="False" Topmost="True" ResizeMode="NoResize" WindowStyle="None" Opacity="0.5" Background="#CC000000" Loaded="Window_Loaded" MouseLeftButtonDown="Window_MouseLeftButtonDown" AllowsTransparency="True" MouseWheel="Window_MouseWheel" KeyDown="Window_KeyDown" Closed="Window_Closed">
     <Grid>
         <Canvas x:Name="TagC" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Center">
             <Path Data="M 0,25 L0,0 L 25,0" StrokeThickness="5" Stroke="White"/>

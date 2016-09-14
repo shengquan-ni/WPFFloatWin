@@ -92,6 +92,7 @@ namespace WPFFloatWin
             _create_button.BorderBrush = null;
             _create_button.Content = "Create";
             _create_button.Margin = new Thickness(104, 0, 0, 0);
+            _create_button.Background = new SolidColorBrush(Color.FromArgb(1, 0, 0, 0));
             window.tw_content.Children.Add(_create_button);
             _create_button.Click += (s, e) => { ClickFunc(); };
         }

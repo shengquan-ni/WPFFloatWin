@@ -118,6 +118,11 @@ namespace WPFFloatWin
         long TotalRecv = 0;
         float CPUpercent = 0;
         float dCPUpercent = 0;
+        static public SolidColorBrush MakeBrush(byte[] color)
+        {
+            return new SolidColorBrush(Color.FromRgb(color[0], color[1], color[2]));
+        }
+
         static byte[][][] MyColorThemes =
         {
             //[0]:Arc填充 [1]:Arc背景 [2]:内圆填充 [3]:内圆背景 [4]:字体颜色 [5]:extra
@@ -157,7 +162,7 @@ namespace WPFFloatWin
             Left = scr.Width - Width;
             Top = scr.Height - Height;
             tagwinlist = new List<TagWindow>();
-            CreateTagFromFile();
+            
         }
         private void CreateTagFromFile()
         {
@@ -315,11 +320,6 @@ namespace WPFFloatWin
             this.ArcPath.Data = Geometry.Parse(CalcArcPoints(new Point(60, 60), 57.5, CPUpercent, false));
         }
 
-        private SolidColorBrush MakeBrush(byte[] color)
-        {
-            return new SolidColorBrush(Color.FromRgb(color[0], color[1], color[2]));
-        }
-
         public bool isCollsionWithRect(double x1, double y1, double w1, double h1,
              double x2, double y2, double w2, double h2)
         {
@@ -384,6 +384,8 @@ namespace WPFFloatWin
         public TagWindow CreateTagWindow(int posx = -1, int posy = -1)
         { 
             TagWindow tagw = new TagWindow(posx,posy);
+            byte[][] theme = MyColorThemes[ColorThemeIndex];
+            tagw.SetColorTheme(theme[0], theme[4], theme[2]);
             tagw.Show();
             tagw.Focus();
             tagwinlist.Add(tagw);
@@ -409,6 +411,11 @@ namespace WPFFloatWin
                 if (element is TextBlock)
                     ((TextBlock)element).Foreground = MakeBrush(theme[4]);
             }
+            foreach (var item in tagwinlist)
+            {
+                item.SetColorTheme(theme[0], theme[4], theme[2]);
+                item.ApplyColorTheme();
+            }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -417,7 +424,6 @@ namespace WPFFloatWin
             MemInit();
             NetInit();
             HookInit();
-            ApplyColorTheme();
             MainTimer = new DispatcherTimer();
             MainTimer.Interval = new TimeSpan(0, 0, 1);
             MainTimer.Tick += new EventHandler(MainTimerHandle);
@@ -428,6 +434,8 @@ namespace WPFFloatWin
             ArcUpdateTimer.Start();
             WindowInteropHelper helper = new WindowInteropHelper(this);
             HwndSource.FromHwnd(helper.Handle).AddHook(HwndSourceHookHandler);
+            ApplyColorTheme();
+            CreateTagFromFile();
         }
 
         private void ChangeTheme_Click(object sender, RoutedEventArgs e)

@@ -22,6 +22,9 @@ namespace WPFFloatWin
         private static int BorderHeight = 50;
         private static int ContentCanvasWidth = 280;
         private static int ContentCanvasHeight = 40;
+        byte[] BorderColor = { 0, 0, 0 };
+        byte[] FontColor = { 255, 255, 255 };
+        byte[] SelectColor = { 255, 0, 0 };
         public bool NeedHide = false;
         bool IsPlaying = false;
         bool FoldFlag = false;
@@ -58,6 +61,47 @@ namespace WPFFloatWin
                 WindowStartupLocation = WindowStartupLocation.Manual;
             }
         }
+        public void SetColorTheme(byte[] bordercolor, byte[] fontcolor, byte[] selectcolor)
+        {
+            BorderColor = bordercolor;
+            FontColor = fontcolor;
+            SelectColor = selectcolor;
+        }
+        public void ApplyColorTheme()
+        {
+            tw_border.Background = MainWindow.MakeBrush(BorderColor);
+            Brush fc = MainWindow.MakeBrush(FontColor);
+            Brush sc = MainWindow.MakeBrush(SelectColor);
+            foreach (var item in tw_canvas.Children)
+            {
+                if (item is System.Windows.Shapes.Path)
+                    ((System.Windows.Shapes.Path)item).Stroke = fc;
+                else
+                {
+                    ((Button)item).Foreground = fc;
+                    ((Button)item).Background = sc;
+                }
+            }
+            foreach (var item in data)
+            {
+                if (item.cv != null)
+                {
+                    
+                    foreach (var cvitem in item.cv.Children)
+                    {
+                        if (cvitem is System.Windows.Shapes.Path)
+                            ((System.Windows.Shapes.Path)cvitem).Stroke = fc;
+                        else
+                        {
+                            ((Button)cvitem).Foreground = fc;
+                            if (item == nowdata) ((Button)cvitem).Background = sc;
+                        }
+                    }
+                }
+            }
+        }
+
+
         private void UpdateAll(TagBase newtag)
         {
             UpdateWindow(newtag);
@@ -186,6 +230,7 @@ namespace WPFFloatWin
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            ApplyColorTheme();
             WindowInteropHelper helper = new WindowInteropHelper(this);
             HwndSource.FromHwnd(helper.Handle).AddHook(HwndSourceHookHandler);
         }
@@ -247,15 +292,23 @@ namespace WPFFloatWin
         {
             System.Windows.Shapes.Path p = new System.Windows.Shapes.Path();
             p.Data = Geometry.Parse(data);
-            p.Stroke = Brushes.White;
+            p.Stroke = MainWindow.MakeBrush(FontColor);
             p.StrokeThickness = 1;
             return p;
         }
 
         private void ExchangeData(TagBase newtag)
         {
-            nowdata.cv.Background = null;
-            newtag.cv.Background = Brushes.Red;
+            foreach (var item in nowdata.cv.Children)
+            {
+                if (item is Button)
+                    ((Button)item).Background = new SolidColorBrush(Color.FromArgb(1, 0, 0, 0));
+            }
+            foreach (var item in newtag.cv.Children)
+            {
+                if(item is Button)
+                    ((Button)item).Background=MainWindow.MakeBrush(SelectColor);
+            }
             UpdateWindow(newtag);
         }
 
@@ -287,19 +340,22 @@ namespace WPFFloatWin
             Canvas cv = new Canvas();
             cv.Height = 50;
             cv.Width = 50;
+            cv.Background = new SolidColorBrush(Color.FromArgb(1,0,0,0));
             cv.Children.Add(CreatePath("M 1,10 L 1,1 L 10,1"));
             cv.Children.Add(CreatePath("M 40,1 L 49,1 L 49,10"));
             cv.Children.Add(CreatePath("M 49,40 L 49,49 L 40,49"));
             cv.Children.Add(CreatePath("M 1,40 L 1,49 L 10,49"));
-            if (tag == nowdata)
-                cv.Background = Brushes.Red;
             Button btn = new Button();
             btn.Style = FindResource("btnstyle") as Style;
             btn.FontFamily = new FontFamily("Agency FB");
             btn.FontSize = 18;
-            btn.Width = 50;
-            btn.Height = 50;
+            btn.Width = 46;
+            btn.Height = 46;
+            btn.Margin = new Thickness(2, 2, 0, 0);
             btn.FontWeight = FontWeights.Bold;
+            btn.Foreground = MainWindow.MakeBrush(FontColor);
+            if(tag==nowdata)
+                btn.Background=MainWindow.MakeBrush(SelectColor);
             btn.BorderBrush = null;
             btn.Content = tag.GetName();
             btn.Click += (s, e) => { ExchangeData(tag);  };

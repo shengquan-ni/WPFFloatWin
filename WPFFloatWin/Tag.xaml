@@ -9,11 +9,12 @@
     <Window.Resources>
         <Style TargetType="Button" x:Key="btnstyle">
             <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Opacity" Value="0.5"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Opacity="1" CornerRadius="2" Background="#02000000">
+                        <Border Opacity="1" CornerRadius="2" Background="{TemplateBinding Background}">
                             <ContentPresenter x:Name="content" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{TemplateBinding  Content}">
                             </ContentPresenter>
                         </Border>
@@ -35,12 +36,12 @@
             <ColumnDefinition Width="50"/>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-        <Canvas x:Name="tw_canvas" Height="50" Width="51" HorizontalAlignment="Left" VerticalAlignment="Top">
+        <Canvas x:Name="tw_canvas" Height="50" Width="51" HorizontalAlignment="Left" VerticalAlignment="Top" Background="#02000000">
             <Path Data="M 1,10 L 1,1 L 10,1" Stroke="White" StrokeThickness="1"/>
             <Path Data="M 40,1 L 49,1 L 49,10" Stroke="White" StrokeThickness="1"/>
             <Path Data="M 49,40 L 49,49 L 40,49" Stroke="White" StrokeThickness="1"/>
             <Path Data="M 1,40 L 1,49 L 10,49" Stroke="White" StrokeThickness="1"/>
-            <Button x:Name="tw_ctrlbutton" Style="{StaticResource btnstyle}" Content="" Height="50" Width="51" BorderBrush="{x:Null}" FontFamily="Agency FB" FontSize="18" FontWeight="Bold" Click="tw_ctrlbutton_Click" MouseRightButtonUp="tw_ctrlbutton_MouseRightButtonUp"/>
+            <Button x:Name="tw_ctrlbutton" Style="{StaticResource btnstyle}" Content="" Height="46" Width="46" BorderBrush="{x:Null}" FontFamily="Agency FB" FontSize="18" FontWeight="Bold" Click="tw_ctrlbutton_Click" MouseRightButtonUp="tw_ctrlbutton_MouseRightButtonUp" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="2,2,0,0"/>
         </Canvas>
         <Border x:Name="tw_border" Background="Black" Width="300" Height="50" CornerRadius="10" Margin="1,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Column="1">
             <Canvas x:Name="tw_content" Width="280" Height="40"/>
