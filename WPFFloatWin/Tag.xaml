@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPFFloatWin"
         mc:Ignorable="d"
-        Title="TagWindow" Height="50" Width="351" WindowStyle="None" AllowsTransparency="True" Background="{x:Null}" Opacity="0.8" DragLeave="Window_DragLeave" ResizeMode="NoResize" Topmost="True" HorizontalAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" WindowStartupLocation="CenterScreen" MouseLeftButtonDown="Window_MouseLeftButtonDown" Loaded="Window_Loaded" DragEnter="Window_DragEnter" Drop="Window_Drop" AllowDrop="True" LocationChanged="Window_LocationChanged" MouseLeave="Window_MouseLeave" MouseEnter="Window_MouseEnter">
+        Title="TagWindow" Height="50" Width="351" WindowStyle="None" AllowsTransparency="True" Background="{x:Null}" Opacity="0.8" DragLeave="Window_DragLeave" Topmost="True" HorizontalAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" WindowStartupLocation="CenterScreen" MouseLeftButtonDown="Window_MouseLeftButtonDown" Loaded="Window_Loaded" DragEnter="Window_DragEnter" Drop="Window_Drop" AllowDrop="True" LocationChanged="Window_LocationChanged" MouseLeave="Window_MouseLeave" ShowInTaskbar="False" SizeChanged="Window_SizeChanged" MinWidth="51" MinHeight="50" MouseMove="Window_MouseMove" Deactivated="Window_Deactivated" ResizeMode="NoResize">
     <Window.Resources>
         <Style TargetType="Button" x:Key="btnstyle">
             <Setter Property="Foreground" Value="White"/>
@@ -28,9 +28,9 @@
             </Setter>
         </Style>
     </Window.Resources>
-    <Grid x:Name="tw_grid" HorizontalAlignment="Right" Width="351">
+    <Grid x:Name="tw_grid">
         <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="50"/>
@@ -43,10 +43,11 @@
             <Path Data="M 1,40 L 1,49 L 10,49" Stroke="White" StrokeThickness="1"/>
             <Button x:Name="tw_ctrlbutton" Style="{StaticResource btnstyle}" Content="" Height="46" Width="46" BorderBrush="{x:Null}" FontFamily="Agency FB" FontSize="18" FontWeight="Bold" Click="tw_ctrlbutton_Click" MouseRightButtonUp="tw_ctrlbutton_MouseRightButtonUp" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="2,2,0,0"/>
         </Canvas>
-        <Border x:Name="tw_border" Background="Black" Width="300" Height="50" CornerRadius="10" Margin="1,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Column="1">
-            <Canvas x:Name="tw_content" Width="280" Height="40"/>
+        <Border x:Name="tw_border" Background="Black" CornerRadius="10" Margin="1,0,-299,0" Grid.Column="1" Padding="10,5" MouseRightButtonUp="tw_border_MouseRightButtonUp" BorderThickness="0">
+            <Canvas x:Name="tw_content" LostFocus="tw_content_LostFocus">
+            </Canvas>
         </Border>
-
+        <CheckBox x:Name="tw_focus_sub" Content="" HorizontalAlignment="Left" VerticalAlignment="Top" Height="0" Width="0" IsHitTestVisible="False"/>
     </Grid>
 
 </Window>

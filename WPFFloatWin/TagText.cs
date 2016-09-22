@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Text.RegularExpressions;
 
 namespace WPFFloatWin
 {
@@ -38,22 +39,43 @@ namespace WPFFloatWin
         public override void OnCreateNew()
         {
             _text_data = "";
+            
             IsCreated = true;
         }
         public override void OnInit()
         {
             base.OnInit();
             _text_input = new TextBox();
-            _text_input.Width = window.tw_content.Width;
-            _text_input.Height = window.tw_content.Height;
+            _text_input.Height = window.tw_content.ActualHeight;
+            _text_input.Width = window.tw_content.ActualWidth;
             _text_input.Background = null;
             _text_input.BorderBrush = null;
+            TextBlock.SetLineHeight(_text_input, _text_input.Height);
             _text_input.Foreground = Brushes.White;
-            _text_input.Text = _text_data;
+            _text_input.Text = @_text_data;
+            _text_input.TextChanged += (s, e) => { TextInputEvent(); };
+            _text_data = "";
+            TextInputEvent();
             _text_input.FontFamily= new FontFamily("Agency FB");
-            _text_input.VerticalContentAlignment = VerticalAlignment.Center;
-            _text_input.HorizontalContentAlignment = HorizontalAlignment.Center;
-            _text_input.FontSize = 24;
+            _text_input.VerticalContentAlignment = VerticalAlignment.Top;
+            _text_input.HorizontalContentAlignment = HorizontalAlignment.Left;
+            _text_input.FontSize = 30;
+            _text_input.TextWrapping = TextWrapping.Wrap;
+            _text_input.AcceptsReturn = true;
+            
+        }
+        private void TextInputEvent()
+        {
+            int linecount = _text_data.Count((x) => { return x == '\n'; }) + 1;
+            int inputlinecount = _text_input.Text.Count((x) => { return x == '\n'; })+ 1;
+            if (linecount != inputlinecount)
+            {
+                double lineheight = TextBlock.GetLineHeight(_text_input);
+                Height = TagWindow.CtrlButtonSize + (inputlinecount - 1) * (int)lineheight;
+                _text_input.Height = (inputlinecount) * (int)lineheight;
+            }
+            _text_data = _text_input.Text;
+
         }
         public override void OnShow()
         {
@@ -66,12 +88,14 @@ namespace WPFFloatWin
         }
         public override string OnSave()
         {
-            return _text_data;
+            string result = Regex.Escape(_text_data);
+            return result;
         }
         public override void OnLoad(string data)
         {
             _text_data = data;
             IsCreated = true;
         }
+        
     }
 }

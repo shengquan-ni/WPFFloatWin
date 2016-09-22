@@ -166,6 +166,12 @@ namespace WPFFloatWin
         }
         private void CreateTagFromFile()
         {
+            //Console.WriteLine(@"a\na\na\n");
+            //Console.WriteLine("a\na\na\n");
+            //StreamWriter sw = new StreamWriter("test.dat", false);
+            //sw.WriteLine(@"a\na\na\n");
+            //sw.Write("a\\na\\na\\n");
+            //sw.Close();
             using (StreamReader sr = new StreamReader("data.dat"))
             {
                 string strLine = string.Empty;
@@ -187,16 +193,17 @@ namespace WPFFloatWin
                         {
                             strLine = sr.ReadLine();
                             var name_data = strLine.Split(new char[] { ' ' }, 2);
-                            TagBase tag=CreateAndAddTag(name_data[0], name_data[1],t);
+                            var datastr = Regex.Unescape(name_data[1]);
+                            TagBase tag=CreateAndAddTag(name_data[0], datastr,t);
                             if (i == focustagindex)
                                 savedtag = tag;
                         }
-                        t.Nowdata = savedtag;
                         if (pms[3] == "True")
                         {
                             t.NeedHide = true;
                             t.tw_border.Visibility = Visibility.Collapsed;
                         }
+                        t.UpdateWindow(savedtag);
                     }
                 }
             }
@@ -380,7 +387,7 @@ namespace WPFFloatWin
             dragwin.OnDragOver(flag);
         }
 
-
+        
         public TagWindow CreateTagWindow(int posx = -1, int posy = -1)
         { 
             TagWindow tagw = new TagWindow(posx,posy);

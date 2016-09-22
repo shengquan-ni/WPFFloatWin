@@ -9,6 +9,9 @@ using System.Windows.Media.Animation;
 using System.Windows.Interop;
 using System.Runtime.InteropServices;
 using System.IO;
+using System.Windows.Threading;
+using System.Threading;
+using System.ComponentModel;
 
 namespace WPFFloatWin
 {
@@ -17,18 +20,95 @@ namespace WPFFloatWin
     /// </summary>
     public partial class TagWindow : Window
     {
+        public struct POINT
+        {
+            public int X;
+            public int Y;
+            public POINT(int x, int y)
+            {
+                this.X = x;
+                this.Y = y;
+            }
+        }
+
+        [DllImport("user32.dll")]
+        public static extern bool GetCursorPos(out POINT lpPoint);
+
         public static Dictionary<string, Type> functions = new Dictionary<string, Type> { { "Text", typeof(TagText) } };
-        private static int BorderWidth = 300;
-        private static int BorderHeight = 50;
-        private static int ContentCanvasWidth = 280;
-        private static int ContentCanvasHeight = 40;
+        private static int WindowWidth = 351;
+        private static int WindowHeight = 50;
+        private static int ShowHideAnimationDuration = 300;
+        public static int CtrlButtonSize = 50;
+        private double _ContentWidth=300;
+        private double _ContentHeight=50;
+        public double WinHeight
+        {
+            set
+            {
+                if (value > _ContentHeight)
+                    Height = value;
+                else if (!IsCtrlBtnFolded)
+                    Height = Math.Max((data.Count + 1) * CtrlButtonSize, _ContentHeight);
+                else
+                    Height = _ContentHeight;
+            }
+            get
+            {
+                return Height;
+            }
+        }
+        public double WinWidth
+        {
+            set
+            {
+                if (value > _ContentWidth)
+                    Width = value;
+            }
+            get
+            {
+                return Width;
+            }
+        }
+
+        public double ContentWidth
+        {
+            set
+            {
+                if (Width < value + MinWidth)
+                    ChangeSize(value + MinWidth, -1);
+                ChangeBorderMargin(value, -1);
+                _ContentWidth = value+MinWidth;
+            }
+            get
+            {
+                return _ContentWidth;
+            }
+        }
+        public double ContentHeight
+        {
+            set
+            {
+                if (Height < value)
+                    ChangeSize(-1, value);
+                ChangeBorderMargin(-1, value);
+                _ContentHeight = value;
+            }
+            get
+            {
+                return _ContentHeight;
+            }
+        }
+
         byte[] BorderColor = { 0, 0, 0 };
         byte[] FontColor = { 255, 255, 255 };
         byte[] SelectColor = { 255, 0, 0 };
         public bool NeedHide = false;
         bool IsPlaying = false;
+        bool ShowedWindow = false;
         bool FoldFlag = false;
+        BackgroundWorker backgroundWorker=null;
         List<TagBase> data;
+         System.Drawing.Rectangle scr = System.Windows.Forms.Screen.AllScreens[0].WorkingArea;
         TagBase nowdata=null;
         public TagBase Nowdata
         {
@@ -76,12 +156,9 @@ namespace WPFFloatWin
             {
                 if (item is System.Windows.Shapes.Path)
                     ((System.Windows.Shapes.Path)item).Stroke = fc;
-                else
-                {
-                    ((Button)item).Foreground = fc;
-                    ((Button)item).Background = sc;
-                }
             }
+            tw_ctrlbutton.Foreground = fc;
+            tw_ctrlbutton.Background = sc;
             foreach (var item in data)
             {
                 if (item.cv != null)
@@ -110,10 +187,10 @@ namespace WPFFloatWin
         public void ClearContent()
         {
             tw_content.Children.Clear();
-            tw_border.Width = BorderWidth;
-            tw_border.Height = BorderHeight;
-            tw_content.Width = ContentCanvasWidth;
-            tw_content.Height = ContentCanvasHeight;
+            ContentWidth = 300;
+            ContentHeight = 50;
+            WinHeight = WindowHeight;
+            WinWidth = WindowWidth;
         }
         public void UpdateWindow(TagBase newtag)
         {
@@ -123,7 +200,10 @@ namespace WPFFloatWin
             if (nowdata.IsCreated)
                 nowdata.OnShow();
             else
+            {
+                tw_content.IsHitTestVisible = true;
                 nowdata.CreateButtonShow();
+            }
         }
         private void UpdateCtrlBtnContent()
         {
@@ -201,19 +281,23 @@ namespace WPFFloatWin
        
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            base.DragMove();
-            ((MainWindow)Application.Current.MainWindow).MergeTagWindow(this);
+            if (!IsPlaying)
+            {
+                base.DragMove();
+                ((MainWindow)Application.Current.MainWindow).MergeTagWindow(this);
+            }
         }
         private void ShowBorder()
         {
             if(!IsPlaying)
             {
+                Width = ContentWidth;
+                Height = ContentHeight;
                 IsPlaying = true;
+                ShowedWindow = true;
                 tw_border.Visibility = Visibility.Visible;
-                System.Drawing.Rectangle scr = System.Windows.Forms.Screen.AllScreens[0].WorkingArea;
-                DoubleAnimation a = new DoubleAnimation(Left, scr.Width - Width, new Duration(TimeSpan.FromMilliseconds(300)), FillBehavior.Stop);
-                a.Completed += (s, e) => { Left = scr.Width - Width; IsPlaying = false; };
-                BeginAnimation(LeftProperty, a);
+               
+                AnimationWithLambda(LeftProperty, scr.Width - Width, new Duration(TimeSpan.FromMilliseconds(ShowHideAnimationDuration)), (s, e) => { Left = scr.Width - Width; IsPlaying = false; });
             }
         }
         public void HideBorder()
@@ -221,10 +305,7 @@ namespace WPFFloatWin
             if (!IsPlaying)
             {
                 IsPlaying = true;
-                System.Drawing.Rectangle scr = System.Windows.Forms.Screen.AllScreens[0].WorkingArea;
-                DoubleAnimation a = new DoubleAnimation(Left, scr.Width - 50, new Duration(TimeSpan.FromMilliseconds(300)), FillBehavior.Stop);
-                a.Completed += (s, e) => { Left = scr.Width - 50; tw_border.Visibility = Visibility.Collapsed; IsPlaying = false; };
-                BeginAnimation(LeftProperty, a);
+                AnimationWithLambda(LeftProperty, scr.Width - MinWidth, new Duration(TimeSpan.FromMilliseconds(ShowHideAnimationDuration)), (s, e) => { Left = scr.Width - MinWidth; Width = MinWidth; Height = MinHeight; tw_border.Visibility = Visibility.Collapsed; ShowedWindow = false; IsPlaying = false; });
             }
         }
 
@@ -237,6 +318,7 @@ namespace WPFFloatWin
         private IntPtr HwndSourceHookHandler(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
             const int WM_MOVING = 0x0216;
+
             switch (msg)
             {
                 case WM_MOVING:
@@ -244,7 +326,6 @@ namespace WPFFloatWin
                         MoveRectangle rectangle = (MoveRectangle)Marshal.PtrToStructure(lParam, typeof(MoveRectangle));
                         if (!FoldFlag)
                         {
-                            System.Drawing.Rectangle scr = System.Windows.Forms.Screen.AllScreens[0].WorkingArea;
                             if (rectangle.Right > scr.Width - 5)
                             {
                                 NeedHide = true;
@@ -338,8 +419,8 @@ namespace WPFFloatWin
         private Canvas CreateButton(TagBase tag)
         {
             Canvas cv = new Canvas();
-            cv.Height = 50;
-            cv.Width = 50;
+            cv.Height = CtrlButtonSize;
+            cv.Width = CtrlButtonSize;
             cv.Background = new SolidColorBrush(Color.FromArgb(1,0,0,0));
             cv.Children.Add(CreatePath("M 1,10 L 1,1 L 10,1"));
             cv.Children.Add(CreatePath("M 40,1 L 49,1 L 49,10"));
@@ -349,8 +430,8 @@ namespace WPFFloatWin
             btn.Style = FindResource("btnstyle") as Style;
             btn.FontFamily = new FontFamily("Agency FB");
             btn.FontSize = 18;
-            btn.Width = 46;
-            btn.Height = 46;
+            btn.Width = CtrlButtonSize-4;
+            btn.Height = CtrlButtonSize-4;
             btn.Margin = new Thickness(2, 2, 0, 0);
             btn.FontWeight = FontWeights.Bold;
             btn.Foreground = MainWindow.MakeBrush(FontColor);
@@ -366,17 +447,41 @@ namespace WPFFloatWin
         private void GridAddButton(TagBase tag)
         {
             RowDefinition rd = new RowDefinition();
-            rd.Height = new GridLength(50);
+            rd.Height = new GridLength(CtrlButtonSize);
             tw_grid.RowDefinitions.Add(rd);
             Canvas cv = CreateButton(tag);
             tag.cv = cv;
             tw_grid.Children.Add(cv);
             Grid.SetRow(cv, tw_grid.RowDefinitions.Count-1);
         }
+        public void AnimationWithLambda(DependencyProperty p,double new_size,Duration duration,EventHandler func=null)
+        {    
+            DoubleAnimation a = new DoubleAnimation(new_size,duration,FillBehavior.Stop);
+            if(func!=null)a.Completed += func;
+            BeginAnimation(p, a);
+        }
+
+        public void ChangeSize(double new_width=-1,double new_height=-1)
+        {
+            if (!IsLoaded) return;
+            if (new_width != -1)
+                Width = new_width;
+            if (new_height != -1)
+                Height = new_height;
+        }
+        private void ChangeBorderMargin(double new_width=-1,double new_height=-1)
+        {
+            if (new_width != -1 && new_height == -1)
+                tw_border.Margin = new Thickness(1, 0, 1-new_width, tw_border.Margin.Bottom);
+            else if (new_width == -1 && new_height != -1)
+                tw_border.Margin = new Thickness(1, 0, tw_border.Margin.Right, CtrlButtonSize-new_height);
+            else
+                tw_border.Margin = new Thickness(1, 0, 1-new_width, CtrlButtonSize-new_height);
+        }
         private void UnFoldCtrlButton()
         {
             IsCtrlBtnFolded = false;
-            Height += (data.Count) * 50;
+            WinHeight = (data.Count + 1) * CtrlButtonSize;
             for(int i=0;i<data.Count;++i)
                    GridAddButton(data[i]);
         }
@@ -389,7 +494,7 @@ namespace WPFFloatWin
                 data[i].cv = null;
             }
             tw_grid.RowDefinitions.RemoveRange(1, tw_grid.RowDefinitions.Count - 1);
-            Height = 50;
+            WinHeight = CtrlButtonSize;
         }
         public void MergeTag(TagWindow another)
         {
@@ -400,7 +505,7 @@ namespace WPFFloatWin
                 data[i].Window = this;
             if (!IsCtrlBtnFolded)
             {
-                Height += (data.Count - precount) * 50;
+                WinHeight = Height+(data.Count - precount) * CtrlButtonSize;
                 for (int i = precount; i < data.Count; ++i)
                     GridAddButton(data[i]);
             }
@@ -425,7 +530,7 @@ namespace WPFFloatWin
 
         private void Window_LocationChanged(object sender, EventArgs e)
         {
-            if(IsLoaded)
+            if (IsLoaded)
                 ((MainWindow)Application.Current.MainWindow).TagWindowDragOver(this);
         }
 
@@ -457,18 +562,82 @@ namespace WPFFloatWin
 
         private void Window_MouseLeave(object sender, MouseEventArgs e)
         {
-            if(NeedHide)
+            if (NeedHide && backgroundWorker==null)
+            {
+                double top = Top, height = Height, width = Width;
+                backgroundWorker = new BackgroundWorker();
+                backgroundWorker.DoWork += Check_MouseLeave;
+                backgroundWorker.RunWorkerCompleted += Finish_MouseLeave;
+                backgroundWorker.RunWorkerAsync(new double[] { top, height,width});
+            }
+        }
+        private void Check_MouseLeave(object sender,DoWorkEventArgs e)
+        {
+            double top = ((double[])(e.Argument))[0];
+            double height=((double[])(e.Argument))[1];
+            double width = ((double[])(e.Argument))[2];
+            while (true)
+            {
+                if (!IsPlaying)
+                {
+                    System.Threading.Thread.Sleep(100);
+                    POINT mp = new POINT();
+                    GetCursorPos(out mp);
+                    if ((mp.Y < top-15 || mp.Y > top+height+15 || mp.X < scr.Width-width-15))
+                        return;
+                }
+            }
+        }
+        private void Finish_MouseLeave(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (ShowedWindow && NeedHide)
             {
                 if (!IsCtrlBtnFolded)
                     FoldCtrlButton();
                 HideBorder();
+                tw_focus_sub.Focus();
+            }
+            backgroundWorker = null;
+        }
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (IsLoaded)
+            {
+                if (!NeedHide)
+                {
+                    if (Left + Width > scr.Width)
+                        Left = scr.Width - Width;
+                    else if (Left < 0)
+                        Left = 0;
+                    if (Top + Height > scr.Height)
+                        Top = scr.Height - Height;
+                    else if (Top < 0)
+                        Top = 0;
+                }
             }
         }
 
-        private void Window_MouseEnter(object sender, MouseEventArgs e)
+        private void Window_MouseMove(object sender, MouseEventArgs e)
         {
-            if(NeedHide)
+            if (NeedHide && !ShowedWindow)
                 ShowBorder();
+        }
+
+        private void tw_border_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (nowdata.IsCreated)
+                tw_content.IsHitTestVisible = !tw_content.IsHitTestVisible;
+        }
+
+        private void tw_content_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if(nowdata.IsCreated)
+                tw_content.IsHitTestVisible = false;
+        }
+
+        private void Window_Deactivated(object sender, EventArgs e)
+        {
+            tw_focus_sub.Focus();
         }
     }
 }

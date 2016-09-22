@@ -36,6 +36,32 @@ namespace WPFFloatWin
         private Canvas _cv;
         private bool _iscreated = false;
         Button _create_button;
+        private int _Width;
+        private int _Height;
+        public int Width
+        {
+            get
+            {
+                return _Width;
+            }
+            set
+            {
+                window.ContentWidth = value;
+                _Width = value;
+            }
+        }
+        public int Height
+        {
+            get
+            {
+                return _Height;
+            }
+            set
+            {
+                window.ContentHeight = value;
+                _Height = value;
+            }
+        }
         public bool IsCreated
         {
             get
@@ -83,6 +109,8 @@ namespace WPFFloatWin
         }
         public virtual void OnInit()
         {
+            Width = 300;
+            Height = 50;
             _create_button = new Button();
             _create_button.Style= window.FindResource("btnstyle") as Style;
             _create_button.FontFamily = new FontFamily("Agency FB");
@@ -108,7 +136,8 @@ namespace WPFFloatWin
         }
         public virtual void OnShow()
         {
-
+            window.ContentHeight = Height;
+            window.ContentWidth = Width;
         }
         private int CollectionFindIndex(UIElementCollection c,UIElement e)
         {
