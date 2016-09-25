@@ -90,13 +90,17 @@ namespace WPFFloatWin
             return "None";
         }
 
-        public virtual bool CanCreateFromFile()
+        public virtual bool CanCreateFromFile
         {
-            return true;
+            get { return true; }
         }
-        public virtual bool CanCreateNewFile()
+        public virtual bool CanCreateNewFile
         {
-            return true;
+            get { return true; }
+        }
+        public virtual bool RightClickActive
+        {
+            get { return true; }
         }
         public virtual void OnCreateFromFile(string filedata)
         {
@@ -153,6 +157,10 @@ namespace WPFFloatWin
             int index = CollectionFindIndex(window.tw_content.Children, _create_button);
             if (index==-1)
                 window.tw_content.Children.Add(_create_button);
+        }
+        public virtual void OnTransfer()
+        {
+
         }
         public virtual void OnLoad(string data)
         {

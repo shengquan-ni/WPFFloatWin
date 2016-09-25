@@ -166,12 +166,7 @@ namespace WPFFloatWin
         }
         private void CreateTagFromFile()
         {
-            //Console.WriteLine(@"a\na\na\n");
-            //Console.WriteLine("a\na\na\n");
-            //StreamWriter sw = new StreamWriter("test.dat", false);
-            //sw.WriteLine(@"a\na\na\n");
-            //sw.Write("a\\na\\na\\n");
-            //sw.Close();
+            if (!File.Exists("data.dat")) return;
             using (StreamReader sr = new StreamReader("data.dat"))
             {
                 string strLine = string.Empty;
@@ -350,6 +345,7 @@ namespace WPFFloatWin
         }
         public void MergeTagWindow(TagWindow dragwin)
         {
+            if (!dragwin.FoldFlag) return;
             double x1 = dragwin.Left, y1 = dragwin.Top, w1 = dragwin.Width, h1 = dragwin.Height;
             for (int i = 0; i < tagwinlist.Count; i++)
             {
@@ -371,14 +367,16 @@ namespace WPFFloatWin
                     break;
                 }
         }
+
         public void TagWindowDragOver(TagWindow dragwin)
         {
-            double x1 = dragwin.Left, y1 = dragwin.Top, w1 = dragwin.Width, h1 = dragwin.Height;
+            TagWindow.POINT p = new TagWindow.POINT();
+            TagWindow.GetCursorPos(out p);
             bool flag = false;
             for (int i = 0; i < tagwinlist.Count; i++)
             {
                 TagWindow temp = tagwinlist[i];
-                if (temp != dragwin && isCollsionWithRect(x1, y1, w1, h1, temp.Left, temp.Top, temp.Width, temp.Height))
+                if (temp != dragwin && new Rect(temp.Left,temp.Top,temp.ActualWidth,temp.ActualHeight).Contains(p.X,p.Y))
                 {
                     flag = true;
                     break;

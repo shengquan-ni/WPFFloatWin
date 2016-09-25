@@ -67,6 +67,7 @@
       <DependentUpon>TagGenerator.xaml</DependentUpon>
     </Compile>
     <Compile Include="TagText.cs" />
+    <Compile Include="TagTimer.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

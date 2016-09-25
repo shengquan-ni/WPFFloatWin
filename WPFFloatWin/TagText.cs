@@ -19,27 +19,31 @@ namespace WPFFloatWin
     {
         string _text_data;
         TextBox _text_input;
+        int _line_count;
         public TagText(ref TagWindow host):base(ref host)
         {
-
+            _text_data = "";
+            _line_count = -1;
         }
         public override string GetName()
         {
             return "Text";
         }
 
-        public override bool CanCreateFromFile()
+        public override bool CanCreateFromFile
         {
-            return true;
+            get { return false; }
         }
-        public override bool CanCreateNewFile()
+        public override bool CanCreateNewFile
         {
-            return true;
+            get { return true; }
+        }
+        public override bool RightClickActive
+        {
+            get { return true; }
         }
         public override void OnCreateNew()
         {
-            _text_data = "";
-            
             IsCreated = true;
         }
         public override void OnInit()
@@ -52,30 +56,29 @@ namespace WPFFloatWin
             _text_input.BorderBrush = null;
             TextBlock.SetLineHeight(_text_input, _text_input.Height);
             _text_input.Foreground = Brushes.White;
-            _text_input.Text = @_text_data;
-            _text_input.TextChanged += (s, e) => { TextInputEvent(); };
-            _text_data = "";
-            TextInputEvent();
+            _text_input.Text = _text_data;
             _text_input.FontFamily= new FontFamily("Agency FB");
             _text_input.VerticalContentAlignment = VerticalAlignment.Top;
             _text_input.HorizontalContentAlignment = HorizontalAlignment.Left;
             _text_input.FontSize = 30;
             _text_input.TextWrapping = TextWrapping.Wrap;
             _text_input.AcceptsReturn = true;
-            
+            _text_input.LayoutUpdated += (s, e) => { TextInputEvent(); };
         }
         private void TextInputEvent()
         {
-            int linecount = _text_data.Count((x) => { return x == '\n'; }) + 1;
-            int inputlinecount = _text_input.Text.Count((x) => { return x == '\n'; })+ 1;
-            if (linecount != inputlinecount)
+            if (_line_count != _text_input.LineCount)
             {
-                double lineheight = TextBlock.GetLineHeight(_text_input);
-                Height = TagWindow.CtrlButtonSize + (inputlinecount - 1) * (int)lineheight;
-                _text_input.Height = (inputlinecount) * (int)lineheight;
+                int lines = _text_input.LineCount;
+                int lineheight = (int)TextBlock.GetLineHeight(_text_input);
+                Height = TagWindow.CtrlButtonSize + (lines - 1) * lineheight;
+                _text_input.Height = (lines) * lineheight;
+                _line_count = lines;
             }
-            _text_data = _text_input.Text;
-
+        }
+        public override void OnTransfer()
+        {
+            _line_count = -1;
         }
         public override void OnShow()
         {
