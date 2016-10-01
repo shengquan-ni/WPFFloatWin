@@ -45,6 +45,7 @@
         </Canvas>
         <Border x:Name="tw_border" Background="Black" CornerRadius="10" Margin="1,0,-299,0" Grid.Column="1" Padding="10,5" MouseRightButtonUp="tw_border_MouseRightButtonUp" BorderThickness="0">
             <Canvas x:Name="tw_content" LostFocus="tw_content_LostFocus">
+
             </Canvas>
         </Border>
         <CheckBox x:Name="tw_focus_sub" Content="" HorizontalAlignment="Left" VerticalAlignment="Top" Height="0" Width="0" IsHitTestVisible="False"/>

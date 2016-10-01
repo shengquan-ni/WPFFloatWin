@@ -169,6 +169,8 @@ namespace WPFFloatWin
             if (!File.Exists("data.dat")) return;
             using (StreamReader sr = new StreamReader("data.dat"))
             {
+                ColorThemeIndex=Convert.ToInt32(sr.ReadLine());
+                ApplyColorTheme();
                 string strLine = string.Empty;
                 Regex rex =new Regex(@"^\d+$");
                 while (true)
@@ -439,7 +441,6 @@ namespace WPFFloatWin
             ArcUpdateTimer.Start();
             WindowInteropHelper helper = new WindowInteropHelper(this);
             HwndSource.FromHwnd(helper.Handle).AddHook(HwndSourceHookHandler);
-            ApplyColorTheme();
             CreateTagFromFile();
         }
 
@@ -458,6 +459,7 @@ namespace WPFFloatWin
         private void SaveTagInfo()
         {
             StreamWriter sw= new StreamWriter("data.dat", false);
+            sw.WriteLine(ColorThemeIndex);
             foreach (var item in tagwinlist)
             {
                 item.OnSave(sw);
@@ -499,8 +501,7 @@ namespace WPFFloatWin
             }
             return IntPtr.Zero;
         }
-
-        private void Window_Closed(object sender, EventArgs e)
+        private void UnHook()
         {
             bool retKeyboard = true;
 
@@ -511,7 +512,11 @@ namespace WPFFloatWin
             }
             //如果卸下钩子失败   
             if (!(retKeyboard)) throw new Exception("卸下钩子失败！");
+        }
 
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            UnHook();
             SaveTagInfo();
         }
     }

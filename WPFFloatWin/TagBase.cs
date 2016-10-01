@@ -108,7 +108,6 @@ namespace WPFFloatWin
         }
         public virtual void OnCreateNew()
         {
-            
             IsCreated = true;
         }
         public virtual void OnInit()
@@ -160,16 +159,17 @@ namespace WPFFloatWin
         }
         public virtual void OnTransfer()
         {
-
         }
         public virtual void OnLoad(string data)
         {
-
         }
         public virtual string OnSave()
         {
             return "";
         }
-        
+        public virtual void OnLostFocus()
+        {
+
+        }
     }
 }

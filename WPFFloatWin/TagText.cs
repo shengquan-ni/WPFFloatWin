@@ -44,6 +44,7 @@ namespace WPFFloatWin
         }
         public override void OnCreateNew()
         {
+            base.OnCreateNew();
             IsCreated = true;
         }
         public override void OnInit()
@@ -78,6 +79,7 @@ namespace WPFFloatWin
         }
         public override void OnTransfer()
         {
+            base.OnTransfer();
             _line_count = -1;
         }
         public override void OnShow()
@@ -87,15 +89,17 @@ namespace WPFFloatWin
         }
         public override void OnExit()
         {
-
+            base.OnExit();
         }
         public override string OnSave()
         {
-            string result = Regex.Escape(_text_data);
+            base.OnSave();
+            string result = Regex.Escape(_text_input.Text);
             return result;
         }
         public override void OnLoad(string data)
         {
+            base.OnLoad(data);
             _text_data = data;
             IsCreated = true;
         }

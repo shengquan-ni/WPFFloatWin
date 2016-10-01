@@ -34,7 +34,7 @@ namespace WPFFloatWin
         [DllImport("user32.dll")]
         public static extern bool GetCursorPos(out POINT lpPoint);
 
-        public static Dictionary<string, Type> functions = new Dictionary<string, Type> { { "Text", typeof(TagText) } };
+        public static Dictionary<string, Type> functions = new Dictionary<string, Type> { { "Text", typeof(TagText) }, {"Timer",typeof(TagTimer) } };
         private static int WindowWidth = 351;
         private static int WindowHeight = 50;
         private static int ShowHideAnimationDuration = 200;
@@ -197,6 +197,8 @@ namespace WPFFloatWin
             {
                 if (tw_content.IsHitTestVisible != value)
                 {
+                    if (value == false)
+                        nowdata.OnLostFocus();
                     tw_content.IsHitTestVisible = value;
                     return true;
                 }
@@ -249,17 +251,26 @@ namespace WPFFloatWin
                 return false;
             }
         }
-
+        private void CollapseBorder()
+        {
+            if (tw_border.Visibility == Visibility.Visible)
+                tw_border.Visibility = Visibility.Collapsed;
+        }
+        private void UnCollapseBorder()
+        {
+            if(tw_border.Visibility==Visibility.Collapsed)
+                tw_border.Visibility = Visibility.Visible;
+        }
         private void FoldWindow()
         {
-            tw_border.Visibility = Visibility.Collapsed;
+            CollapseBorder();
             tw_grid.Opacity = 0.5;
             FoldFlag = true;
         }
 
         private void UnFoldWindow()
         {
-            tw_border.Visibility = Visibility.Visible;
+            UnCollapseBorder();
             tw_grid.Opacity = 1;
             tw_canvas.Margin = new Thickness(0, 0, 0, 0);
             FoldFlag = false;
@@ -311,22 +322,35 @@ namespace WPFFloatWin
         }
         private void ShowBorder()
         {
-            if(!IsPlaying)
+            if(!IsPlaying && Mouse.LeftButton == MouseButtonState.Released)
             {
                 Width = ContentWidth;
                 Height = ContentHeight;
                 IsPlaying = true;
                 ShowedWindow = true;
-                tw_border.Visibility = Visibility.Visible;
-                AnimationWithLambda(LeftProperty, scr.Width - Width, new Duration(TimeSpan.FromMilliseconds(ShowHideAnimationDuration)), (s, e) => { Left = scr.Width - Width; IsPlaying = false; });
+                UnCollapseBorder();
+                AnimationWithLambda(LeftProperty, scr.Width - Width, new Duration(TimeSpan.FromMilliseconds(ShowHideAnimationDuration)), (s, e) => 
+                {
+                    Left = scr.Width - Width;
+                    IsPlaying = false;
+                    UnCollapseBorder();
+                });
             }
         }
         public void HideBorder()
         {
-            if (!IsPlaying)
+            if (!IsPlaying && Mouse.LeftButton == MouseButtonState.Released)
             {
                 IsPlaying = true;
-                AnimationWithLambda(LeftProperty, scr.Width - MinWidth, new Duration(TimeSpan.FromMilliseconds(ShowHideAnimationDuration)), (s, e) => { Left = scr.Width - MinWidth; Width = MinWidth; Height = MinHeight; tw_border.Visibility = Visibility.Collapsed; ShowedWindow = false; IsPlaying = false; });
+                AnimationWithLambda(LeftProperty, scr.Width - MinWidth, new Duration(TimeSpan.FromMilliseconds(ShowHideAnimationDuration)), (s, e) => 
+                {
+                    Left = scr.Width - MinWidth;
+                    Width = MinWidth;
+                    Height = MinHeight;
+                    CollapseBorder();
+                    ShowedWindow = false;
+                    IsPlaying = false;
+                });
             }
         }
 
