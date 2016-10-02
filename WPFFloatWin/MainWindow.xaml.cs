@@ -20,6 +20,8 @@ using System.Windows.Interop;
 using System.Reflection;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.ComponentModel;
 
 namespace WPFFloatWin
 {
@@ -114,6 +116,20 @@ namespace WPFFloatWin
         PerformanceCounter MemCounter = null;
         PerformanceCounter MemLimCounter = null;
         List<NetworkInterface> NetInterfaces = null;
+        BackgroundWorker splitbgworker = null;
+        bool _FinishSplit = false;
+        bool FinishSplit
+        {
+            get
+            {
+                return _FinishSplit;
+            }
+            set
+            {
+                Console.WriteLine("FinishSplit->" + value.ToString());
+                _FinishSplit = value;
+            }
+        }
         long TotalSent = 0;
         long TotalRecv = 0;
         float CPUpercent = 0;
@@ -154,6 +170,37 @@ namespace WPFFloatWin
                new byte[] { 0,0,0}
            }
         };
+        public void CancelSplitBgWorker()
+        {
+            if (splitbgworker != null)
+            {
+                splitbgworker.CancelAsync();
+                splitbgworker = null;
+                FinishSplit = false;
+            }
+        }
+        public void StartSplitBgWorker(TagWindow t,TagBase tag,int tagindex)
+        {
+            if (splitbgworker == null)
+            {
+                double top = t.Top, left = t.Left;
+                splitbgworker = new BackgroundWorker();
+                splitbgworker.WorkerSupportsCancellation = true;
+                splitbgworker.DoWork += t.Check_MouseLeaveButton;
+                splitbgworker.RunWorkerCompleted += (s1, e1) => 
+                {
+                    if (!FinishSplit)
+                    {
+                        FinishSplit = true;
+                        if (Mouse.LeftButton == MouseButtonState.Pressed)
+                            t.SplitTag(tag);
+                    }
+                };
+                Rect arg = new Rect(left, top + TagWindow.CtrlButtonSize * (tagindex + 1), TagWindow.CtrlButtonSize, TagWindow.CtrlButtonSize);
+                splitbgworker.RunWorkerAsync(arg);
+            }
+        }
+
 
         public MainWindow()
         {
@@ -389,7 +436,8 @@ namespace WPFFloatWin
 
         
         public TagWindow CreateTagWindow(int posx = -1, int posy = -1)
-        { 
+        {
+            Console.WriteLine("CreateTagWin");
             TagWindow tagw = new TagWindow(posx,posy);
             byte[][] theme = MyColorThemes[ColorThemeIndex];
             tagw.SetColorTheme(theme[0], theme[4], theme[2]);

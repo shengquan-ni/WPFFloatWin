@@ -24,10 +24,6 @@ namespace WPFFloatWin
             {
                 return window;
             }
-            set
-            {
-                window=value;
-            }
         }
         public TagBase(ref TagWindow host)
         {
@@ -157,11 +153,13 @@ namespace WPFFloatWin
             if (index==-1)
                 window.tw_content.Children.Add(_create_button);
         }
-        public virtual void OnTransfer()
+        public virtual void OnTransfer(TagWindow new_window)
         {
+            window = new_window;
         }
         public virtual void OnLoad(string data)
         {
+
         }
         public virtual string OnSave()
         {

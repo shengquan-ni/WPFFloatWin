@@ -18,7 +18,7 @@ namespace WPFFloatWin
     class TagTimer : TagBase
     {
         DateTime _dt;
-        Timer _timer;
+        System.Timers.Timer _timer=null;
         Label _year;
         Label _year_text;
         Label _month;
@@ -49,6 +49,26 @@ namespace WPFFloatWin
         {
             get { return true; }
         }
+        private int GetInterval(DateTime target_time)
+        {
+            TimeSpan t = target_time - DateTime.Now;
+            if (t <= TimeSpan.FromSeconds(1))
+                return 0;
+            else if (t <= TimeSpan.FromMinutes(1))
+                return 1000;
+            else if (t <= TimeSpan.FromMinutes(15))
+                return 60000;
+            else if (t <= TimeSpan.FromMinutes(30))
+                return 900000;
+            else if (t <= TimeSpan.FromHours(1))
+                return 1800000;
+            else if (t <= TimeSpan.FromHours(2))
+                return 3600000;
+            else
+                return 7200000;
+        }
+
+
         public override void OnCreateNew()
         {
             base.OnCreateNew();
@@ -83,6 +103,14 @@ namespace WPFFloatWin
                 PositionLabel(item, x, 0);
                 x += item.Width;
             }
+        }
+        private void MouseWheelEvent()
+        {
+            _year.MouseWheel += (s, e) => {  _dt = _dt.AddYears(e.Delta > 0 ? 1 : -1); UpdateLabels(); };
+            _month.MouseWheel += (s, e) => { _dt = _dt.AddMonths(e.Delta > 0 ? 1 : -1); UpdateLabels(); };
+            _day.MouseWheel += (s, e) => { _dt = _dt.AddDays(e.Delta > 0 ? 1 : -1); UpdateLabels(); };
+            _hour.MouseWheel += (s, e) => { _dt = _dt.AddHours(e.Delta > 0 ? 1 : -1); UpdateLabels(); };
+            _minute.MouseWheel += (s, e) => { _dt = _dt.AddMinutes(e.Delta > 0 ? 1 : -1); UpdateLabels(); };
         }
         private void PositionLabel(Label l,double posx, double posy)
         {
@@ -129,8 +157,9 @@ namespace WPFFloatWin
             InitLabel(ref _hour_text, 20, height, "时");
             InitLabel(ref _minute, 30, height);
             InitLabel(ref _minute_text, 20, height, "分");
+            MouseWheelEvent();
             Label_SetPosition(_year, _year_text, _month, _month_text, _day, _day_text, _hour, _hour_text, _minute, _minute_text);
-
+            
         }
         public override string OnSave()
         {
@@ -140,9 +169,62 @@ namespace WPFFloatWin
         {
             base.OnLoad(data);
         }
+        public override void OnExit()
+        {
+            base.OnExit();
+
+        }
+        private void TimerCallBack()
+        {
+            window.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                window.WarningStart();
+            }), null); 
+        }
+        private void BuildTimer()
+        {
+            if (!IsCreated) return;
+            if (_timer != null)
+            {
+                _timer.Stop();
+                _timer.Close();
+                _timer = null;
+            }
+            if (_dt.Second != 0)
+                _dt = _dt.AddSeconds(-_dt.Second);
+            int interval = GetInterval(_dt);
+            if (interval == 0)
+                TimerCallBack();
+            else
+            {
+
+                _timer = new System.Timers.Timer(interval);
+                _timer.Elapsed += (s, e) =>
+                {
+                    int i = GetInterval(_dt);
+                    if (i == 0)
+                    {
+                        TimerCallBack();
+                        _timer.Stop();
+                    }
+                    else
+                        _timer.Interval = i;
+                };
+                _timer.Start();
+            }
+        }
         public override void OnLostFocus()
         {
             base.OnLostFocus();
+            window.WarningCancel();
+            BuildTimer();
+
+        }
+        public override void OnTransfer(TagWindow new_window)
+        {
+            window.WarningCancel();
+            base.OnTransfer(new_window);
+            BuildTimer();
         }
     }
 }

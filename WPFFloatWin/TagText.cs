@@ -68,24 +68,24 @@ namespace WPFFloatWin
         }
         private void TextInputEvent()
         {
-            if (_line_count != _text_input.LineCount)
+            if (window.Nowdata==this && _line_count != _text_input.LineCount)
             {
-                int lines = _text_input.LineCount;
+                int lines = _text_input.LineCount==-1?_line_count:_text_input.LineCount;
                 int lineheight = (int)TextBlock.GetLineHeight(_text_input);
                 Height = TagWindow.CtrlButtonSize + (lines - 1) * lineheight;
                 _text_input.Height = (lines) * lineheight;
                 _line_count = lines;
             }
         }
-        public override void OnTransfer()
+        public override void OnTransfer(TagWindow new_window)
         {
-            base.OnTransfer();
-            _line_count = -1;
+            base.OnTransfer(new_window);
         }
         public override void OnShow()
         {
-            base.OnShow();
             window.tw_content.Children.Add(_text_input);
+            base.OnShow();
+
         }
         public override void OnExit()
         {
@@ -94,12 +94,13 @@ namespace WPFFloatWin
         public override string OnSave()
         {
             base.OnSave();
-            string result = Regex.Escape(_text_input.Text);
+            string result = Regex.Escape(_line_count.ToString()+" "+_text_input.Text);
             return result;
         }
         public override void OnLoad(string data)
         {
             base.OnLoad(data);
+
             _text_data = data;
             IsCreated = true;
         }

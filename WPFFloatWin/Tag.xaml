@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPFFloatWin"
         mc:Ignorable="d"
-        Title="TagWindow" Height="50" Width="351" WindowStyle="None" AllowsTransparency="True" Background="{x:Null}" Opacity="0.8" DragLeave="Window_DragLeave" Topmost="True" HorizontalAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" WindowStartupLocation="CenterScreen" MouseLeftButtonDown="Window_MouseLeftButtonDown" Loaded="Window_Loaded" DragEnter="Window_DragEnter" Drop="Window_Drop" AllowDrop="True" LocationChanged="Window_LocationChanged" MouseLeave="Window_MouseLeave" ShowInTaskbar="False" SizeChanged="Window_SizeChanged" MinWidth="51" MinHeight="50" MouseMove="Window_MouseMove" Deactivated="Window_Deactivated" ResizeMode="NoResize">
+        Title="TagWindow" WindowStyle="None" AllowsTransparency="True" Background="{x:Null}" Opacity="0.8" DragLeave="Window_DragLeave" Topmost="True" HorizontalAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" WindowStartupLocation="CenterScreen" MouseLeftButtonDown="Window_MouseLeftButtonDown" Loaded="Window_Loaded" DragEnter="Window_DragEnter" Drop="Window_Drop" AllowDrop="True" LocationChanged="Window_LocationChanged" MouseLeave="Window_MouseLeave" ShowInTaskbar="False" SizeChanged="Window_SizeChanged" MinWidth="51" MinHeight="50" MouseMove="Window_MouseMove" Deactivated="Window_Deactivated" ResizeMode="NoResize" MouseLeftButtonUp="Window_MouseLeftButtonUp">
     <Window.Resources>
         <Style TargetType="Button" x:Key="btnstyle">
             <Setter Property="Foreground" Value="White"/>
@@ -48,7 +48,7 @@
 
             </Canvas>
         </Border>
-        <CheckBox x:Name="tw_focus_sub" Content="" HorizontalAlignment="Left" VerticalAlignment="Top" Height="0" Width="0" IsHitTestVisible="False"/>
+        
     </Grid>
 
 </Window>

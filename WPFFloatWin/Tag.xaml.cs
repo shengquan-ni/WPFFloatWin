@@ -74,6 +74,7 @@ namespace WPFFloatWin
         {
             set
             {
+
                 if (Width < value + MinWidth)
                     ChangeSize(value + MinWidth, -1);
                 ChangeBorderMargin(value, -1);
@@ -107,7 +108,7 @@ namespace WPFFloatWin
         bool ShowedWindow = false;
         public bool FoldFlag = false;
         BackgroundWorker backgroundWorker=null;
-        BackgroundWorker splitbgworker = null;
+        ColorAnimation WarningAnim = null;
         List<TagBase> data;
         System.Drawing.Rectangle scr = System.Windows.Forms.Screen.AllScreens[0].WorkingArea;
         TagBase nowdata=null;
@@ -116,6 +117,10 @@ namespace WPFFloatWin
             set
             {
                 nowdata = value;
+            }
+            get
+            {
+                return nowdata;
             }
         }
         bool DragFlag = false;
@@ -134,6 +139,8 @@ namespace WPFFloatWin
         public TagWindow(int posx,int posy)
         {
             InitializeComponent();
+            Height = WindowHeight;
+            Width = WindowWidth;
             data = new List<TagBase>();
             if (posx != -1 && posy != -1)
             {
@@ -193,7 +200,7 @@ namespace WPFFloatWin
         }
         private bool SetTagActive(bool value=true)
         {
-            if (nowdata.RightClickActive)
+            if (nowdata!=null && nowdata.RightClickActive && nowdata.IsCreated)
             {
                 if (tw_content.IsHitTestVisible != value)
                 {
@@ -350,6 +357,7 @@ namespace WPFFloatWin
                     CollapseBorder();
                     ShowedWindow = false;
                     IsPlaying = false;
+                    tw_canvas.Margin = new Thickness();
                 });
             }
         }
@@ -363,9 +371,12 @@ namespace WPFFloatWin
         private IntPtr HwndSourceHookHandler(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
             const int WM_MOVING = 0x0216;
-
+            const int WM_LBUTTONUP = 0x0202;
             switch (msg)
             {
+                case WM_LBUTTONUP:
+                    ((MainWindow)Application.Current.MainWindow).CancelSplitBgWorker();
+                    break;
                 case WM_MOVING:
                     {
                         MoveRectangle rectangle = (MoveRectangle)Marshal.PtrToStructure(lParam, typeof(MoveRectangle));
@@ -426,11 +437,13 @@ namespace WPFFloatWin
 
         private void ExchangeData(TagBase newtag)
         {
+            if(nowdata.cv!=null)
             foreach (var item in nowdata.cv.Children)
             {
                 if (item is Button)
                     ((Button)item).Background = new SolidColorBrush(Color.FromArgb(1, 0, 0, 0));
             }
+            if(newtag.cv!=null)
             foreach (var item in newtag.cv.Children)
             {
                 if(item is Button)
@@ -461,6 +474,7 @@ namespace WPFFloatWin
         {
             for (int i = 0; i < data.Count; ++i)
                 Grid.SetRow(data[i].cv, i+1);
+            tw_grid.RowDefinitions.RemoveRange(data.Count, tw_grid.RowDefinitions.Count - data.Count-1);
         }
         private Canvas CreateButton(TagBase tag)
         {
@@ -490,26 +504,14 @@ namespace WPFFloatWin
             btn.MouseRightButtonUp += (s, e) => { CtrlButtonRemoveData(tag); };
             cv.PreviewMouseLeftButtonDown += (s, e) => 
             {
-                double top = Top, left = Left;
-                splitbgworker = new BackgroundWorker();
-                splitbgworker.WorkerSupportsCancellation = true;
-                splitbgworker.DoWork += Check_MouseLeaveButton;
-                splitbgworker.RunWorkerCompleted += (s1, e1) => { if(Mouse.LeftButton==MouseButtonState.Pressed)SplitTag(tag); };
-                Rect arg = new Rect(left, top + CtrlButtonSize * (tagindex + 1), CtrlButtonSize, CtrlButtonSize);
-                splitbgworker.RunWorkerAsync(arg);
-            };
-            cv.PreviewMouseLeftButtonUp += (s, e) => 
-            {
-                if (splitbgworker != null)
-                {
-                    splitbgworker.CancelAsync();
-                    splitbgworker = null;
-                }
+                if(nowdata==tag)
+                    ((MainWindow)Application.Current.MainWindow).StartSplitBgWorker(this, tag, tagindex);
+
             };
             cv.Children.Add(btn);
             return cv;
         }
-        private void Check_MouseLeaveButton(object sender, DoWorkEventArgs e)
+        public void Check_MouseLeaveButton(object sender, DoWorkEventArgs e)
         {
             Rect r = (Rect)e.Argument;
             while (true)
@@ -521,15 +523,15 @@ namespace WPFFloatWin
                     return;
             }
         }
-        private void SplitTag(TagBase tag)
+        public void SplitTag(TagBase tag)
         {
             CtrlButtonRemoveData(tag, false);
             POINT pt=new POINT();
             GetCursorPos(out pt);
             TagWindow tagw=((MainWindow)Application.Current.MainWindow).CreateTagWindow(pt.X-tag.Width/2,pt.Y-tag.Height/2);
-            tag.Window = tagw;
+            tag.OnTransfer(tagw);
             tagw.AddTag(tag,false);
-            tag.OnTransfer();
+
             tagw.Window_MouseLeftButtonDown(null, null);
         }
         private void GridAddButton(TagBase tag)
@@ -591,7 +593,7 @@ namespace WPFFloatWin
             another.ClearContent();
             data.AddRange(another.data);
             for (int i = precount; i < data.Count; ++i)
-                data[i].Window = this;
+                data[i].OnTransfer(this);
             if (!IsCtrlBtnFolded)
             {
                 WinHeight = Height+(data.Count - precount) * CtrlButtonSize;
@@ -620,7 +622,9 @@ namespace WPFFloatWin
         private void Window_LocationChanged(object sender, EventArgs e)
         {
             if (IsLoaded)
+            {
                 ((MainWindow)Application.Current.MainWindow).TagWindowDragOver(this);
+            }
         }
 
         private void tw_ctrlbutton_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
@@ -684,7 +688,7 @@ namespace WPFFloatWin
                 if (!IsCtrlBtnFolded)
                     FoldCtrlButton();
                 HideBorder();
-                tw_focus_sub.Focus();
+                SetTagActive(false);
             }
             backgroundWorker = null;
         }
@@ -726,7 +730,33 @@ namespace WPFFloatWin
 
         private void Window_Deactivated(object sender, EventArgs e)
         {
-            tw_focus_sub.Focus();
+            if(IsLoaded)
+             SetTagActive(false);
+        }
+        public void WarningStart()
+        {
+            if(WarningAnim==null)
+            {
+                WarningAnim = new ColorAnimation();
+                WarningAnim.To = Colors.Red;
+                WarningAnim.Duration = TimeSpan.FromSeconds(1);
+                WarningAnim.AutoReverse = true;
+                WarningAnim.RepeatBehavior = RepeatBehavior.Forever;
+                tw_canvas.Background.BeginAnimation(SolidColorBrush.ColorProperty, WarningAnim);
+            }
+        }
+        public void WarningCancel()
+        {
+            if(WarningAnim!=null)
+            {
+                tw_canvas.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
+                tw_canvas.Background= MainWindow.MakeBrush(SelectColor);
+                WarningAnim = null;
+            }
+        }
+
+        private void Window_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
         }
     }
 }
