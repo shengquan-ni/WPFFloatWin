@@ -94,7 +94,7 @@ namespace WPFFloatWin
         public override string OnSave()
         {
             base.OnSave();
-            string result = Regex.Escape(_line_count.ToString()+" "+_text_input.Text);
+            string result = Regex.Escape(_text_input.Text);
             return result;
         }
         public override void OnLoad(string data)

@@ -48,7 +48,7 @@
 
             </Canvas>
         </Border>
-        
+        <CheckBox x:Name="tw_focus_sub" Content="" HorizontalAlignment="Left" VerticalAlignment="Top" Height="0" Width="0" IsHitTestVisible="False"/>
     </Grid>
 
 </Window>

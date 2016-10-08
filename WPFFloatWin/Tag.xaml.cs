@@ -202,6 +202,7 @@ namespace WPFFloatWin
         {
             if (nowdata!=null && nowdata.RightClickActive && nowdata.IsCreated)
             {
+                tw_focus_sub.Focus();
                 if (tw_content.IsHitTestVisible != value)
                 {
                     if (value == false)
