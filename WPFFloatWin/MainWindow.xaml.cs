@@ -31,6 +31,70 @@ namespace WPFFloatWin
     public partial class MainWindow : Window
     {
         //全局键盘消息：
+        #region Window styles  
+        [Flags]
+        public enum ExtendedWindowStyles
+        {
+            // ...  
+            WS_EX_TOOLWINDOW = 0x00000080,
+            // ...  
+        }
+
+        public enum GetWindowLongFields
+        {
+            // ...  
+            GWL_EXSTYLE = (-20),
+            // ...  
+        }
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetWindowLong(IntPtr hWnd, int nIndex);
+
+        public static IntPtr SetWindowLong(IntPtr hWnd, int nIndex, IntPtr dwNewLong)
+        {
+            int error = 0;
+            IntPtr result = IntPtr.Zero;
+            // Win32 SetWindowLong doesn't clear error on success  
+            SetLastError(0);
+
+            if (IntPtr.Size == 4)
+            {
+                // use SetWindowLong  
+                Int32 tempResult = IntSetWindowLong(hWnd, nIndex, IntPtrToInt32(dwNewLong));
+                error = Marshal.GetLastWin32Error();
+                result = new IntPtr(tempResult);
+            }
+            else
+            {
+                // use SetWindowLongPtr  
+                result = IntSetWindowLongPtr(hWnd, nIndex, dwNewLong);
+                error = Marshal.GetLastWin32Error();
+            }
+
+            if ((result == IntPtr.Zero) && (error != 0))
+            {
+                throw new System.ComponentModel.Win32Exception(error);
+            }
+
+            return result;
+        }
+
+        [DllImport("user32.dll", EntryPoint = "SetWindowLongPtr", SetLastError = true)]
+        private static extern IntPtr IntSetWindowLongPtr(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+
+        [DllImport("user32.dll", EntryPoint = "SetWindowLong", SetLastError = true)]
+        private static extern Int32 IntSetWindowLong(IntPtr hWnd, int nIndex, Int32 dwNewLong);
+
+        private static int IntPtrToInt32(IntPtr intPtr)
+        {
+            return unchecked((int)intPtr.ToInt64());
+        }
+
+        [DllImport("kernel32.dll", EntryPoint = "SetLastError")]
+        public static extern void SetLastError(int dwErrorCode);
+        #endregion
+
+
         public delegate int HookProc(int nCode, Int32 wParam, IntPtr lParam);
         HookProc KeyboardHookProcedure;
         static int hKeyboardHook = 0;
@@ -126,7 +190,6 @@ namespace WPFFloatWin
             }
             set
             {
-                Console.WriteLine("FinishSplit->" + value.ToString());
                 _FinishSplit = value;
             }
         }
@@ -137,6 +200,13 @@ namespace WPFFloatWin
         static public SolidColorBrush MakeBrush(byte[] color)
         {
             return new SolidColorBrush(Color.FromRgb(color[0], color[1], color[2]));
+        }
+        static public void SetToolWindowStyle(Window w)
+        {
+            WindowInteropHelper wndHelper = new WindowInteropHelper(w);
+            int exStyle = (int)GetWindowLong(wndHelper.Handle, (int)GetWindowLongFields.GWL_EXSTYLE);
+            exStyle |= (int)ExtendedWindowStyles.WS_EX_TOOLWINDOW;
+            SetWindowLong(wndHelper.Handle, (int)GetWindowLongFields.GWL_EXSTYLE, (IntPtr)exStyle);
         }
 
         static byte[][][] MyColorThemes =
@@ -204,6 +274,7 @@ namespace WPFFloatWin
 
         public MainWindow()
         {
+            Log.ErrorLog("程序开始运行");
             InitializeComponent();
             System.Drawing.Rectangle scr = System.Windows.Forms.Screen.AllScreens[0].WorkingArea;
             Left = scr.Width - Width;
@@ -231,6 +302,7 @@ namespace WPFFloatWin
                         strLine = sr.ReadLine();
                         var pms = strLine.Split(' ');
                         TagWindow t = CreateTagWindow(Convert.ToInt32(pms[0]), Convert.ToInt32(pms[1]));
+                        t.FullLoaded = false;
                         int focustagindex = Convert.ToInt32(pms[2]);
                         TagBase savedtag = null;
                         for (int i = 0; i < num; ++i)
@@ -247,6 +319,7 @@ namespace WPFFloatWin
                             t.NeedHide = true;
                             t.tw_border.Visibility = Visibility.Collapsed;
                         }
+                        t.FullLoaded = true;
                         t.UpdateWindow(savedtag);
                     }
                 }
@@ -277,7 +350,7 @@ namespace WPFFloatWin
 
         private void CPUHandle()
         {
-            dCPUpercent =(CPUCounter.NextValue() / 100 - CPUpercent)/20;
+            dCPUpercent =(CPUCounter.NextValue() / 100.1f - CPUpercent)/20;
         }
         private void NetInit()
         {
@@ -392,6 +465,7 @@ namespace WPFFloatWin
             }
             return true;
         }
+
         public void MergeTagWindow(TagWindow dragwin)
         {
             if (!dragwin.FoldFlag) return;
@@ -425,7 +499,7 @@ namespace WPFFloatWin
             for (int i = 0; i < tagwinlist.Count; i++)
             {
                 TagWindow temp = tagwinlist[i];
-                if (temp != dragwin && new Rect(temp.Left,temp.Top,temp.ActualWidth,temp.ActualHeight).Contains(p.X,p.Y))
+                if (temp != dragwin && new Rect(temp.Left,temp.Top,temp.ActualWidth,temp.ActualHeight).Contains(p.X,p.Y) && dragwin.CanMerge(temp))
                 {
                     flag = true;
                     break;
@@ -473,8 +547,10 @@ namespace WPFFloatWin
             }
         }
 
+
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            SetToolWindowStyle(this);
             CPUInit();
             MemInit();
             NetInit();
@@ -504,15 +580,25 @@ namespace WPFFloatWin
         {
             Application.Current.Shutdown();
         }
-        private void SaveTagInfo()
+        public void SaveTagInfo()
         {
-            StreamWriter sw= new StreamWriter("data.dat", false);
-            sw.WriteLine(ColorThemeIndex);
-            foreach (var item in tagwinlist)
+            try
             {
-                item.OnSave(sw);
+                StreamWriter sw = new StreamWriter("data.dat", false);
+                sw.WriteLine(ColorThemeIndex);
+                foreach (var item in tagwinlist)
+                {
+                    item.OnSave(sw);
+                }
+                sw.Close();
+                Log.ErrorLog("保存成功");
             }
-            sw.Close();
+            catch (Exception e)
+            {
+                Log.ErrorLog("保存失败 发生错误");
+                Log.ErrorLog("错误：" + e.ToString());
+            }
+            
         }
         private IntPtr HwndSourceHookHandler(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
@@ -559,13 +645,15 @@ namespace WPFFloatWin
                 hKeyboardHook = 0;
             }
             //如果卸下钩子失败   
-            if (!(retKeyboard)) throw new Exception("卸下钩子失败！");
+            if (!(retKeyboard)) Log.ErrorLog("卸下钩子失败！");
         }
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            UnHook();
             SaveTagInfo();
+            UnHook();
+            Log.ErrorLog("程序成功退出");
+            Log.CloseErrorLog();
         }
     }
 }

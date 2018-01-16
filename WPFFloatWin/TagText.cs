@@ -50,6 +50,8 @@ namespace WPFFloatWin
         public override void OnInit()
         {
             base.OnInit();
+            Width = 300;
+            Height = 50;
             _text_input = new TextBox();
             _text_input.Height = window.tw_content.ActualHeight;
             _text_input.Width = window.tw_content.ActualWidth;
@@ -72,6 +74,7 @@ namespace WPFFloatWin
             {
                 int lines = _text_input.LineCount==-1?_line_count:_text_input.LineCount;
                 int lineheight = (int)TextBlock.GetLineHeight(_text_input);
+                Console.WriteLine(lineheight);
                 Height = TagWindow.CtrlButtonSize + (lines - 1) * lineheight;
                 _text_input.Height = (lines) * lineheight;
                 _line_count = lines;
@@ -100,9 +103,7 @@ namespace WPFFloatWin
         public override void OnLoad(string data)
         {
             base.OnLoad(data);
-
             _text_data = data;
-            IsCreated = true;
         }
         
     }

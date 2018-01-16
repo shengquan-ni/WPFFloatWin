@@ -29,6 +29,15 @@ namespace WPFFloatWin
         Label _hour_text;
         Label _minute;
         Label _minute_text;
+
+        public override Type[] CollideWith
+        {
+            get
+            {
+                return new Type[] {typeof(TagTimer) };
+            }
+        }
+
         public TagTimer(ref TagWindow host) : base(ref host)
         {
             
@@ -146,6 +155,8 @@ namespace WPFFloatWin
         public override void OnInit()
         {
             base.OnInit();
+            Width = 300;
+            Height = 50;
             double height = window.tw_content.ActualHeight;
             InitLabel(ref _year, 60, height);
             InitLabel(ref _year_text, 20, height, "年");
@@ -159,19 +170,22 @@ namespace WPFFloatWin
             InitLabel(ref _minute_text, 20, height, "分");
             MouseWheelEvent();
             Label_SetPosition(_year, _year_text, _month, _month_text, _day, _day_text, _hour, _hour_text, _minute, _minute_text);
-            
+            UpdateLabels();
         }
         public override string OnSave()
         {
-            return base.OnSave();
+            return _dt.ToString();
         }
         public override void OnLoad(string data)
         {
             base.OnLoad(data);
+            _dt=Convert.ToDateTime(data);
+            BuildTimer();
         }
         public override void OnExit()
         {
             base.OnExit();
+            window.WarningCancel();
 
         }
         private void TimerCallBack()
@@ -197,7 +211,6 @@ namespace WPFFloatWin
                 TimerCallBack();
             else
             {
-
                 _timer = new System.Timers.Timer(interval);
                 _timer.Elapsed += (s, e) =>
                 {
@@ -224,6 +237,12 @@ namespace WPFFloatWin
         {
             window.WarningCancel();
             base.OnTransfer(new_window);
+            BuildTimer();
+        }
+
+
+        public override void OnPowerModeChange()
+        {
             BuildTimer();
         }
     }

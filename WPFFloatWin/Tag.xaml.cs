@@ -12,6 +12,7 @@ using System.IO;
 using System.Windows.Threading;
 using System.Threading;
 using System.ComponentModel;
+using Microsoft.Win32;
 
 namespace WPFFloatWin
 {
@@ -34,13 +35,14 @@ namespace WPFFloatWin
         [DllImport("user32.dll")]
         public static extern bool GetCursorPos(out POINT lpPoint);
 
-        public static Dictionary<string, Type> functions = new Dictionary<string, Type> { { "Text", typeof(TagText) }, {"Timer",typeof(TagTimer) } };
+        public static Dictionary<string, Type> functions = new Dictionary<string, Type> { { "Text", typeof(TagText) }, {"Timer",typeof(TagTimer) }, {"Image",typeof(TagImage) } };
         private static int WindowWidth = 351;
         private static int WindowHeight = 50;
         private static int ShowHideAnimationDuration = 200;
         public static int CtrlButtonSize = 50;
         private double _ContentWidth=300;
         private double _ContentHeight=50;
+        public bool FullLoaded = true; 
         public double WinHeight
         {
             set
@@ -63,6 +65,8 @@ namespace WPFFloatWin
             {
                 if (value > _ContentWidth)
                     Width = value;
+                else
+                    Width = _ContentWidth;
             }
             get
             {
@@ -109,6 +113,7 @@ namespace WPFFloatWin
         public bool FoldFlag = false;
         BackgroundWorker backgroundWorker=null;
         ColorAnimation WarningAnim = null;
+        PowerModeChangedEventHandler pmceh=null;
         List<TagBase> data;
         System.Drawing.Rectangle scr = System.Windows.Forms.Screen.AllScreens[0].WorkingArea;
         TagBase nowdata=null;
@@ -135,10 +140,39 @@ namespace WPFFloatWin
             public int Bottom;
 
         }
-        
+
+        public bool CanMerge(TagWindow another)
+        {
+            foreach (var item in data)
+            {
+                var collidelist = item.CollideWith;
+                foreach (var item2 in another.data)
+                {
+                    foreach (var t in collidelist)
+                    {
+                        if (t == item2.GetType())
+                            return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        void SystemEvents_PowerModeChanged(object sender, PowerModeChangedEventArgs e)
+        {
+            if (e.Mode == PowerModes.Resume)
+            {
+                for (int i = 0; i < data.Count; ++i)
+                    data[i].OnPowerModeChange();
+            }
+        }
+
+
         public TagWindow(int posx,int posy)
         {
             InitializeComponent();
+            pmceh = new PowerModeChangedEventHandler(SystemEvents_PowerModeChanged);
+            SystemEvents.PowerModeChanged += pmceh;
             Height = WindowHeight;
             Width = WindowWidth;
             data = new List<TagBase>();
@@ -193,6 +227,8 @@ namespace WPFFloatWin
         public void ClearContent()
         {
             tw_content.Children.Clear();
+            //tw_content = new Canvas();
+            //tw_content.LostFocus += tw_content_LostFocus;
             ContentWidth = 300;
             ContentHeight = 50;
             WinHeight = WindowHeight;
@@ -248,7 +284,9 @@ namespace WPFFloatWin
         {
             try
             {
-                if(create)
+                if (nowdata != null)
+                    ClearContent();
+                if (create)
                     tag.OnInit();
                 data.Add(tag);
                 UpdateAll(tag);
@@ -324,8 +362,12 @@ namespace WPFFloatWin
         {
             if (!IsPlaying)
             {
-                base.DragMove();
-                ((MainWindow)Application.Current.MainWindow).MergeTagWindow(this);
+                if(nowdata.DragMoveInvaild.Length!=0)
+                    foreach (var item in nowdata.DragMoveInvaild)
+                        if (item.IsMouseOver)
+                            return;
+                    base.DragMove();
+                    ((MainWindow)Application.Current.MainWindow).MergeTagWindow(this);
             }
         }
         private void ShowBorder()
@@ -365,6 +407,7 @@ namespace WPFFloatWin
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            MainWindow.SetToolWindowStyle(this);
             ApplyColorTheme();
             WindowInteropHelper helper = new WindowInteropHelper(this);
             HwndSource.FromHwnd(helper.Handle).AddHook(HwndSourceHookHandler);
@@ -438,6 +481,7 @@ namespace WPFFloatWin
 
         private void ExchangeData(TagBase newtag)
         {
+            if (newtag == nowdata) return;
             if(nowdata.cv!=null)
             foreach (var item in nowdata.cv.Children)
             {
@@ -451,6 +495,7 @@ namespace WPFFloatWin
                     ((Button)item).Background=MainWindow.MakeBrush(SelectColor);
             }
             UpdateWindow(newtag);
+            WindowRePosition();
         }
 
         private void CtrlButtonRemoveData(TagBase tag,bool destroy=true)
@@ -554,7 +599,7 @@ namespace WPFFloatWin
 
         public void ChangeSize(double new_width=-1,double new_height=-1)
         {
-            if (!IsLoaded) return;
+            if (!FullLoaded) return;
             if (new_width != -1)
                 Width = new_width;
             if (new_height != -1)
@@ -658,26 +703,24 @@ namespace WPFFloatWin
         {
             if (NeedHide && backgroundWorker==null)
             {
-                double top = Top, height = Height, width = Width;
+                double top = Top;
                 backgroundWorker = new BackgroundWorker();
                 backgroundWorker.DoWork += Check_MouseLeave;
                 backgroundWorker.RunWorkerCompleted += Finish_MouseLeave;
-                backgroundWorker.RunWorkerAsync(new double[] { top, height,width});
+                backgroundWorker.RunWorkerAsync(top);
             }
         }
         private void Check_MouseLeave(object sender,DoWorkEventArgs e)
         {
-            double top = ((double[])(e.Argument))[0];
-            double height=((double[])(e.Argument))[1];
-            double width = ((double[])(e.Argument))[2];
+            double top = (double)e.Argument;
             while (true)
             {
                 if (!IsPlaying)
                 {
-                    System.Threading.Thread.Sleep(100);
+                    System.Threading.Thread.Sleep(500);
                     POINT mp = new POINT();
                     GetCursorPos(out mp);
-                    if ((mp.Y < top-30 || mp.Y > top+height+30 || mp.X < scr.Width-width-30))
+                    if ((mp.Y < top-30 || mp.Y > top+this.ActualHeight+30 || mp.X < scr.Width-this.ActualWidth-30))
                         return;
                 }
             }
@@ -699,16 +742,21 @@ namespace WPFFloatWin
             {
                 if (!NeedHide)
                 {
-                    if (Left + Width > scr.Width)
-                        Left = scr.Width - Width;
-                    else if (Left < 0)
-                        Left = 0;
-                    if (Top + Height > scr.Height)
-                        Top = scr.Height - Height;
-                    else if (Top < 0)
-                        Top = 0;
+                    WindowRePosition();
                 }
             }
+        }
+
+        private void WindowRePosition()
+        {
+            if (Left + Width > scr.Width)
+                Left = scr.Width - Width;
+            else if (Left < 0)
+                Left = 0;
+            if (Top + Height > scr.Height)
+                Top = scr.Height - Height;
+            else if (Top < 0)
+                Top = 0;
         }
 
         private void Window_MouseMove(object sender, MouseEventArgs e)
@@ -751,7 +799,7 @@ namespace WPFFloatWin
             if(WarningAnim!=null)
             {
                 tw_canvas.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
-                tw_canvas.Background= MainWindow.MakeBrush(SelectColor);
+                tw_canvas.Background = new SolidColorBrush(Color.FromArgb(2,0,0,0));
                 WarningAnim = null;
             }
         }

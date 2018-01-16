@@ -80,11 +80,25 @@ namespace WPFFloatWin
                 _cv = value;
             }
         }
-            
+        
+        public virtual Type[] CollideWith
+        {
+            get
+            {
+                return new Type[] { };
+            }
+        }
+
         public virtual string GetName()
         {
             return "None";
         }
+
+        public virtual FrameworkElement[] DragMoveInvaild
+        {
+            get { return new FrameworkElement[] { }; }
+        }
+
 
         public virtual bool CanCreateFromFile
         {
@@ -108,20 +122,23 @@ namespace WPFFloatWin
         }
         public virtual void OnInit()
         {
-            Width = 300;
-            Height = 50;
-            _create_button = new Button();
-            _create_button.Style= window.FindResource("btnstyle") as Style;
-            _create_button.FontFamily = new FontFamily("Agency FB");
-            _create_button.FontSize = 36;
-            _create_button.Width = 80;
-            _create_button.Height = 40;
-            _create_button.BorderBrush = null;
-            _create_button.Content = "Create";
-            _create_button.Margin = new Thickness(104, 0, 0, 0);
-            _create_button.Background = new SolidColorBrush(Color.FromArgb(1, 0, 0, 0));
-            window.tw_content.Children.Add(_create_button);
-            _create_button.Click += (s, e) => { ClickFunc(); };
+            if (!IsCreated)
+            {
+                Width = 300;
+                Height = 50;
+                _create_button = new Button();
+                _create_button.Style = window.FindResource("btnstyle") as Style;
+                _create_button.FontFamily = new FontFamily("Agency FB");
+                _create_button.FontSize = 36;
+                _create_button.Width = 80;
+                _create_button.Height = 40;
+                _create_button.BorderBrush = null;
+                _create_button.Content = "Create";
+                _create_button.Margin = new Thickness(104, 0, 0, 0);
+                _create_button.Background = new SolidColorBrush(Color.FromArgb(1, 0, 0, 0));
+                window.tw_content.Children.Add(_create_button);
+                _create_button.Click += (s, e) => { ClickFunc(); };
+            }
         }
         protected void ClickFunc()
         {
@@ -159,13 +176,17 @@ namespace WPFFloatWin
         }
         public virtual void OnLoad(string data)
         {
-
+            IsCreated = true;
         }
         public virtual string OnSave()
         {
             return "";
         }
         public virtual void OnLostFocus()
+        {
+
+        }
+        public virtual void OnPowerModeChange()
         {
 
         }

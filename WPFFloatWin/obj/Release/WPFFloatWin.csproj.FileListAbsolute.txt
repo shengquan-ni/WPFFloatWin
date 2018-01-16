@@ -17,3 +17,5 @@ C:\Users\Sq\documents\visual studio 2015\Projects\WPFFloatWin\WPFFloatWin\obj\Re
 C:\Users\Sq\documents\visual studio 2015\Projects\WPFFloatWin\WPFFloatWin\obj\Release\WPFFloatWin.exe
 C:\Users\Sq\documents\visual studio 2015\Projects\WPFFloatWin\WPFFloatWin\obj\Release\WPFFloatWin.pdb
 C:\Users\Sq\Documents\Visual Studio 2015\Projects\WPFFloatWin\WPFFloatWin\obj\Release\WPFFloatWin.csprojResolveAssemblyReference.cache
+C:\Users\Sq\documents\visual studio 2015\Projects\WPFFloatWin\WPFFloatWin\obj\Release\ScreenCapturer.g.cs
+C:\Users\Sq\documents\visual studio 2015\Projects\WPFFloatWin\WPFFloatWin\obj\Release\ScreenCapturer.baml

@@ -1,0 +1,98 @@
+﻿2016/11/20 3:07:39 程序开始运行
+2016/11/20 3:08:07 程序成功退出
+2016/11/20 3:11:06 程序开始运行
+2016/11/20 3:11:09 开始显示tag
+2016/11/20 3:11:11 开始隐藏tag
+2016/11/20 3:11:11 开始显示tag
+2016/11/20 3:11:15 开始隐藏tag
+2016/11/20 3:11:15 开始显示tag
+2016/11/20 3:11:16 开始隐藏tag
+2016/11/20 3:11:27 程序成功退出
+2016/11/20 3:11:34 程序开始运行
+2016/11/20 3:11:37 开始显示tag
+2016/11/20 3:11:38 开始隐藏tag
+2016/11/20 3:11:38 开始显示tag
+2016/11/20 3:11:40 开始隐藏tag
+2016/11/20 3:11:40 开始显示tag
+2017/1/9 14:25:27 程序开始运行
+2017/1/9 14:25:58 保存成功
+2017/1/9 14:25:58 程序成功退出
+2017/1/9 14:37:22 程序开始运行
+2017/1/9 14:37:41 保存失败 发生错误
+2017/1/9 14:37:41 错误：System.NotSupportedException: 不支持给定路径的格式。
+   在 System.IO.FileStream.Init(String path, FileMode mode, FileAccess access, Int32 rights, Boolean useRights, FileShare share, Int32 bufferSize, FileOptions options, SECURITY_ATTRIBUTES secAttrs, String msgPath, Boolean bFromProxy, Boolean useLongPath, Boolean checkHost)
+   在 System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, String msgPath, Boolean bFromProxy)
+   在 System.IO.FileStream..ctor(String path, FileMode mode)
+   在 WPFFloatWin.TagImage.OnSave() 位置 C:\Users\Sq\Documents\Visual Studio 2015\Projects\WPFFloatWin\WPFFloatWin\TagImage.cs:行号 75
+   在 WPFFloatWin.TagWindow.OnSave(StreamWriter sw) 位置 C:\Users\Sq\Documents\Visual Studio 2015\Projects\WPFFloatWin\WPFFloatWin\Tag.xaml.cs:行号 692
+   在 WPFFloatWin.MainWindow.SaveTagInfo() 位置 C:\Users\Sq\Documents\Visual Studio 2015\Projects\WPFFloatWin\WPFFloatWin\MainWindow.xaml.cs:行号 589
+2017/1/9 14:37:41 程序成功退出
+2017/1/9 14:41:05 程序开始运行
+2017/1/9 14:41:33 保存成功
+2017/1/9 14:41:33 程序成功退出
+2017/1/9 14:53:34 程序开始运行
+2017/1/9 14:53:58 保存成功
+2017/1/9 14:53:58 程序成功退出
+2017/1/9 15:02:24 程序开始运行
+2017/1/9 15:03:12 保存成功
+2017/1/9 15:03:12 程序成功退出
+2017/1/9 15:03:19 程序开始运行
+2017/1/9 15:03:30 保存成功
+2017/1/9 15:03:30 程序成功退出
+2017/1/9 18:58:16 程序开始运行
+2017/1/9 18:58:22 保存成功
+2017/1/9 18:58:22 程序成功退出
+2017/1/9 19:06:29 程序开始运行
+2017/1/9 19:06:46 保存成功
+2017/1/9 19:06:46 程序成功退出
+2017/1/25 15:19:22 程序开始运行
+2017/1/25 15:20:49 保存成功
+2017/1/25 15:20:49 程序成功退出
+2017/1/25 15:20:55 程序开始运行
+2017/1/25 15:21:11 保存成功
+2017/1/25 15:21:11 程序成功退出
+2017/1/25 15:21:18 程序开始运行
+2017/1/25 15:21:54 保存成功
+2017/1/25 15:21:54 程序成功退出
+2017/1/25 15:25:47 程序开始运行
+2017/1/25 15:26:29 保存失败 发生错误
+2017/1/25 15:26:29 错误：System.NotSupportedException: 不支持给定路径的格式。
+   在 System.IO.FileStream.Init(String path, FileMode mode, FileAccess access, Int32 rights, Boolean useRights, FileShare share, Int32 bufferSize, FileOptions options, SECURITY_ATTRIBUTES secAttrs, String msgPath, Boolean bFromProxy, Boolean useLongPath, Boolean checkHost)
+   在 System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, String msgPath, Boolean bFromProxy)
+   在 System.IO.FileStream..ctor(String path, FileMode mode)
+   在 WPFFloatWin.TagImage.OnSave() 位置 C:\Users\Sq\Documents\Visual Studio 2015\Projects\WPFFloatWin\WPFFloatWin\TagImage.cs:行号 75
+   在 WPFFloatWin.TagWindow.OnSave(StreamWriter sw) 位置 C:\Users\Sq\Documents\Visual Studio 2015\Projects\WPFFloatWin\WPFFloatWin\Tag.xaml.cs:行号 693
+   在 WPFFloatWin.MainWindow.SaveTagInfo() 位置 C:\Users\Sq\Documents\Visual Studio 2015\Projects\WPFFloatWin\WPFFloatWin\MainWindow.xaml.cs:行号 589
+2017/1/25 15:26:29 程序成功退出
+2017/1/25 15:32:19 程序开始运行
+2017/1/25 15:32:45 保存失败 发生错误
+2017/1/25 15:32:45 错误：System.NotSupportedException: 不支持给定路径的格式。
+   在 System.IO.FileStream.Init(String path, FileMode mode, FileAccess access, Int32 rights, Boolean useRights, FileShare share, Int32 bufferSize, FileOptions options, SECURITY_ATTRIBUTES secAttrs, String msgPath, Boolean bFromProxy, Boolean useLongPath, Boolean checkHost)
+   在 System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, String msgPath, Boolean bFromProxy)
+   在 System.IO.FileStream..ctor(String path, FileMode mode)
+   在 WPFFloatWin.TagImage.OnSave() 位置 C:\Users\Sq\Documents\Visual Studio 2015\Projects\WPFFloatWin\WPFFloatWin\TagImage.cs:行号 75
+   在 WPFFloatWin.TagWindow.OnSave(StreamWriter sw) 位置 C:\Users\Sq\Documents\Visual Studio 2015\Projects\WPFFloatWin\WPFFloatWin\Tag.xaml.cs:行号 693
+   在 WPFFloatWin.MainWindow.SaveTagInfo() 位置 C:\Users\Sq\Documents\Visual Studio 2015\Projects\WPFFloatWin\WPFFloatWin\MainWindow.xaml.cs:行号 589
+2017/1/25 15:32:45 程序成功退出
+2017/1/25 15:32:51 程序开始运行
+2017/1/25 15:34:27 保存失败 发生错误
+2017/1/25 15:34:27 错误：System.NotSupportedException: 不支持给定路径的格式。
+   在 System.IO.FileStream.Init(String path, FileMode mode, FileAccess access, Int32 rights, Boolean useRights, FileShare share, Int32 bufferSize, FileOptions options, SECURITY_ATTRIBUTES secAttrs, String msgPath, Boolean bFromProxy, Boolean useLongPath, Boolean checkHost)
+   在 System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, String msgPath, Boolean bFromProxy)
+   在 System.IO.FileStream..ctor(String path, FileMode mode)
+   在 WPFFloatWin.TagImage.OnSave() 位置 C:\Users\Sq\Documents\Visual Studio 2015\Projects\WPFFloatWin\WPFFloatWin\TagImage.cs:行号 75
+   在 WPFFloatWin.TagWindow.OnSave(StreamWriter sw) 位置 C:\Users\Sq\Documents\Visual Studio 2015\Projects\WPFFloatWin\WPFFloatWin\Tag.xaml.cs:行号 693
+   在 WPFFloatWin.MainWindow.SaveTagInfo() 位置 C:\Users\Sq\Documents\Visual Studio 2015\Projects\WPFFloatWin\WPFFloatWin\MainWindow.xaml.cs:行号 589
+2017/1/25 15:34:27 程序成功退出
+2017/1/25 15:35:37 程序开始运行
+2017/1/25 15:35:58 保存成功
+2017/1/25 15:35:58 程序成功退出
+2017/1/25 15:36:05 程序开始运行
+2017/1/25 15:36:27 保存成功
+2017/1/25 15:36:27 程序成功退出
+2017/1/25 16:03:26 程序开始运行
+2017/1/25 16:03:46 保存成功
+2017/1/25 16:03:46 程序成功退出
+2017/1/25 16:51:13 程序开始运行
+2017/1/25 16:51:26 保存成功
+2017/1/25 16:51:26 程序成功退出

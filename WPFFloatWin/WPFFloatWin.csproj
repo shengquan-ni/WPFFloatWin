@@ -57,8 +57,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="CustomControl1.cs" />
-    <Compile Include="PartiallyRoundedRectangle.cs" />
+    <Compile Include="Log.cs" />
+    <Compile Include="RisCaptureLib\Config.cs" />
+    <Compile Include="RisCaptureLib\HelperMethods.cs" />
+    <Compile Include="RisCaptureLib\IndicatorObject.cs" />
+    <Compile Include="RisCaptureLib\MaskCanvas.cs" />
+    <Compile Include="RisCaptureLib\MaskWindow.cs" />
+    <Compile Include="RisCaptureLib\ScreenCaputre.cs" />
+    <Compile Include="RisCaptureLib\ScreenCaputredEventArgs.cs" />
+    <Compile Include="ScreenCapturer.xaml.cs">
+      <DependentUpon>ScreenCapturer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Tag.xaml.cs">
       <DependentUpon>Tag.xaml</DependentUpon>
     </Compile>
@@ -66,6 +75,7 @@
     <Compile Include="TagGenerator.xaml.cs">
       <DependentUpon>TagGenerator.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TagImage.cs" />
     <Compile Include="TagText.cs" />
     <Compile Include="TagTimer.cs" />
     <Page Include="MainWindow.xaml">
@@ -80,6 +90,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="ScreenCapturer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Tag.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -120,6 +134,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

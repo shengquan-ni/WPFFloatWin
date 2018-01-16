@@ -17,3 +17,5 @@ C:\Users\Sq\Documents\Visual Studio 2015\Projects\WPFFloatWin\WPFFloatWin\obj\De
 C:\Users\Sq\Documents\Visual Studio 2015\Projects\WPFFloatWin\WPFFloatWin\obj\Debug\Tag.g.cs
 C:\Users\Sq\Documents\Visual Studio 2015\Projects\WPFFloatWin\WPFFloatWin\obj\Debug\Tag.baml
 C:\Users\Sq\Documents\Visual Studio 2015\Projects\WPFFloatWin\WPFFloatWin\obj\Debug\Themes\Generic.baml
+C:\Users\Sq\documents\visual studio 2015\Projects\WPFFloatWin\WPFFloatWin\obj\Debug\ScreenCapturer.g.cs
+C:\Users\Sq\documents\visual studio 2015\Projects\WPFFloatWin\WPFFloatWin\obj\Debug\ScreenCapturer.baml
